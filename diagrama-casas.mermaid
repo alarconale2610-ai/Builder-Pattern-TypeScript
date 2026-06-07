@@ -1,0 +1,105 @@
+classDiagram
+    direction TB
+
+    %% ══════════════════════════════════════════════
+    %% PRODUCTO
+    %% El objeto complejo que se quiere construir.
+    %% Sus propiedades tienen valores por defecto seguros.
+    %% El Builder es quien las asigna paso a paso.
+    %% ══════════════════════════════════════════════
+    class Casa {
+        +paredes: string
+        +techo: string
+        +puertas: number
+        +ventanas: number
+        +piscina: boolean
+        +jardin: boolean
+        +garaje: boolean
+        +describir() void
+    }
+
+    %% ══════════════════════════════════════════════
+    %% INTERFAZ BUILDER
+    %% Contrato que todo builder de casas debe cumplir.
+    %% El Director trabaja contra esta interfaz, nunca
+    %% contra una clase concreta.
+    %% Cada método retorna `this` para permitir
+    %% el encadenamiento de llamadas.
+    %% ══════════════════════════════════════════════
+    class CasaBuilder {
+        <<interface>>
+        +construirParedes() this
+        +construirTecho() this
+        +agregarPuertas(cantidad) this
+        +agregarVentanas(cantidad) this
+        +agregarPiscina() this
+        +agregarJardin() this
+        +agregarGaraje() this
+        +obtenerCasa() Casa
+    }
+
+    %% ══════════════════════════════════════════════
+    %% BUILDERS CONCRETOS
+    %% Cada uno implementa los mismos pasos pero con
+    %% materiales completamente distintos.
+    %% Aquí reside la lógica específica de construcción.
+    %% Si se cambia un material, solo se toca este archivo.
+    %% ══════════════════════════════════════════════
+    class CasaDeMaderaBuilder {
+        -casa: Casa
+        +construirParedes() this
+        +construirTecho() this
+        +agregarPuertas(cantidad) this
+        +agregarVentanas(cantidad) this
+        +agregarPiscina() this
+        +agregarJardin() this
+        +agregarGaraje() this
+        +obtenerCasa() Casa
+    }
+
+    class CasaDeDiamanteBuilder {
+        -casa: Casa
+        +construirParedes() this
+        +construirTecho() this
+        +agregarPuertas(cantidad) this
+        +agregarVentanas(cantidad) this
+        +agregarPiscina() this
+        +agregarJardin() this
+        +agregarGaraje() this
+        +obtenerCasa() Casa
+    }
+
+    %% ══════════════════════════════════════════════
+    %% DIRECTOR
+    %% El "capataz de la obra". Sabe qué pasos ejecutar
+    %% y en qué orden lógico.
+    %%
+    %% setBuilder() es el puente entre Director y Builder.
+    %% Permite "enchufar" cualquier builder concreto
+    %% en tiempo de ejecución sin cambiar al Director.
+    %%
+    %% QUÉ SABE: qué pasos ejecutar y en qué orden.
+    %% QUÉ NO SABE: materiales, tipo de casa, implementación.
+    %% ══════════════════════════════════════════════
+    class DirectorDeCasas {
+        -builder: CasaBuilder
+        +setBuilder(builder: CasaBuilder) void
+        +construirCabana() void
+        +construirMansion() void
+    }
+
+    %% ══════════════════════════════════════════════
+    %% RELACIONES
+    %% ══════════════════════════════════════════════
+
+    %% Los builders concretos implementan el contrato de la interfaz
+    CasaBuilder <|.. CasaDeMaderaBuilder : implements
+    CasaBuilder <|.. CasaDeDiamanteBuilder : implements
+
+    %% Cada builder concreto crea (produce) una Casa
+    CasaDeMaderaBuilder ..> Casa : crea
+    CasaDeDiamanteBuilder ..> Casa : crea
+
+    %% El Director tiene una referencia a la interfaz (no a una clase concreta)
+    %% La composición (o--) indica que el builder es una dependencia del director
+    DirectorDeCasas o-- CasaBuilder : setBuilder()

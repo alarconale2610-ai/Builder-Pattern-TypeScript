@@ -1,0 +1,111 @@
+classDiagram
+    direction TB
+
+    %% ══════════════════════════════════════════════
+    %% INTERFAZ BUILDER
+    %% Los métodos se llaman con "set" (setter) porque
+    %% configuran propiedades individuales del vehículo.
+    %% "set" significa "establecer / configurar".
+    %%   setMotor("V8")  → establece qué motor tendrá
+    %%   setAsientos(5)  → establece cuántos asientos
+    %%   setGps()        → activa la opción GPS
+    %%
+    %% El Director trabaja contra esta interfaz.
+    %% No sabe si está construyendo un coche o un manual.
+    %% ══════════════════════════════════════════════
+    class VehiculoBuilder {
+        <<interface>>
+        +setMotor(tipo: string) this
+        +setAsientos(cantidad: number) this
+        +setGps() this
+        +setComputadoraDeBordo() this
+    }
+
+    %% ══════════════════════════════════════════════
+    %% BUILDER CONCRETO A
+    %% Cada setXxx() instala el componente físico en el coche.
+    %% La casa guarda el producto como estado privado (`-coche`)
+    %% para que nadie acceda al objeto mientras está incompleto.
+    %% obtenerCoche() lo entrega y reinicia el builder.
+    %% ══════════════════════════════════════════════
+    class CocheBuilder {
+        -coche: Coche
+        +setMotor(tipo: string) this
+        +setAsientos(cantidad: number) this
+        +setGps() this
+        +setComputadoraDeBordo() this
+        +obtenerCoche() Coche
+    }
+
+    %% ══════════════════════════════════════════════
+    %% BUILDER CONCRETO B
+    %% Mismos pasos que CocheBuilder, pero cada setXxx()
+    %% REDACTA documentación en lugar de instalar hardware.
+    %%   CocheBuilder.setMotor("V8")  → coche.motor = "V8"
+    %%   ManualBuilder.setMotor("V8") → manual.descripcionMotor = "Instrucciones para V8"
+    %% ══════════════════════════════════════════════
+    class ManualBuilder {
+        -manual: ManualDeCoche
+        +setMotor(tipo: string) this
+        +setAsientos(cantidad: number) this
+        +setGps() this
+        +setComputadoraDeBordo() this
+        +obtenerManual() ManualDeCoche
+    }
+
+    %% ══════════════════════════════════════════════
+    %% PRODUCTOS
+    %% Coche y ManualDeCoche NO comparten interfaz.
+    %% Son objetos completamente distintos producidos
+    %% por los mismos pasos de construcción.
+    %%
+    %% Por eso el Director NO puede devolver el producto:
+    %% no sabe qué tipo es. El cliente debe recogerlo
+    %% directamente del builder con obtenerCoche()
+    %% o obtenerManual() según corresponda.
+    %% ══════════════════════════════════════════════
+    class Coche {
+        +motor: string
+        +asientos: number
+        +gps: boolean
+        +computadoraDeBordo: boolean
+        +describir() void
+    }
+
+    class ManualDeCoche {
+        +descripcionMotor: string
+        +descripcionAsientos: string
+        +instruccionesGps: string
+        +instruccionesComputadora: string
+        +describir() void
+    }
+
+    %% ══════════════════════════════════════════════
+    %% DIRECTOR
+    %% Recibe el builder por parámetro (distinto a setBuilder()).
+    %% Esto permite pasarle un builder distinto en cada llamada,
+    %% siendo más explícito en el código cliente.
+    %%
+    %% QUÉ SABE: orden de los pasos y recetas de vehículos.
+    %% QUÉ NO SABE: si el builder produce metal o papel.
+    %% ══════════════════════════════════════════════
+    class DirectorDeVehiculos {
+        +construirCocheSuperDeportivo(builder: VehiculoBuilder) void
+        +construirCocheFamiliar(builder: VehiculoBuilder) void
+    }
+
+    %% ══════════════════════════════════════════════
+    %% RELACIONES
+    %% ══════════════════════════════════════════════
+
+    %% Los builders concretos implementan el contrato de la interfaz
+    VehiculoBuilder <|.. CocheBuilder : implements
+    VehiculoBuilder <|.. ManualBuilder : implements
+
+    %% Cada builder produce un producto distinto
+    CocheBuilder ..> Coche : crea
+    ManualBuilder ..> ManualDeCoche : crea
+
+    %% El Director depende de la interfaz (no de clases concretas)
+    %% Usa builder por parámetro en cada método, no setBuilder()
+    DirectorDeVehiculos ..> VehiculoBuilder : usa por parámetro
