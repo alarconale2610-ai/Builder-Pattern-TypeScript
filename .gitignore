@@ -1,0 +1,12 @@
+# Dependencias
+node_modules/
+
+# Compilado de TypeScript
+dist/
+
+# Variables de entorno
+.env
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
