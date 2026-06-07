@@ -8,6 +8,9 @@
  * Porque si lo hiciéramos, terminaríamos con el "constructor monstruoso"
  * lleno de parámetros opcionales que el video menciona.
  * En su lugar, delegamos esa responsabilidad al Builder.
+ * 
+ * // ❌ Sin Builder: constructor monstruoso lleno de nulos
+const casa = new Casa("madera", "tejas", 3, 5, null, null, true);
  */
 export class Casa {
   // Cada propiedad tiene un valor por defecto seguro.
