@@ -17,9 +17,7 @@ classDiagram
         +construirMansion() void
     }
 
-    %% Nota: pasos que ejecuta el Director internamente
-    note for DirectorDeCasas "builder.construirParedes()\nbuilder.construirTecho()\nbuilder.agregarPuertas(5)\nbuilder.agregarVentanas(12)\nbuilder.agregarPiscina()\nbuilder.agregarJardin()\nbuilder.agregarGaraje()"
-
+    
     %% ── INTERFAZ BUILDER ──
     class CasaBuilder {
         <<interface>>
@@ -46,9 +44,7 @@ classDiagram
         +obtenerCasa() Casa
     }
 
-    %% Nota: cómo el builder devuelve el producto
-    note for CasaDeMaderaBuilder "return this.casa"
-
+    
     %% ── BUILDER CONCRETO B ──
     class CasaDeDiamanteBuilder {
         -casa: Casa
@@ -62,9 +58,7 @@ classDiagram
         +obtenerCasa() Casa
     }
 
-    %% Nota: inicialización interna del producto
-    note for CasaDeDiamanteBuilder "this.casa =\nnew Casa()\n\nAñadir bóveda\nde cristal."
-
+    
     %% ── PRODUCTO ──
     class Casa {
         +paredes: string

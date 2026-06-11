@@ -1,34 +1,34 @@
-import { VehiculoBuilder } from "./VehiculoBuilder";
+// ╔══════════════════════════════════════════════════════════════════╗
+// ║  ARCHIVO 6 — DirectorDeVehiculos.ts                              ║
+// ║  ROL EN EL PATRÓN: DIRECTOR (el "capataz de la obra")            ║
+// ╚══════════════════════════════════════════════════════════════════╝
+//
+// ¿QUÉ HACE EL DIRECTOR?
+// ───────────────────────
+// Encapsula las "recetas" de construcción: sabe QUÉ pasos ejecutar
+// y en QUÉ ORDEN para producir un tipo de vehículo determinado.
+//
+// Lo que el Director NO sabe:
+//   ✗ Si está construyendo un coche físico o un manual de papel
+//   ✗ Con qué materiales trabaja el builder
+//   ✗ Qué tipo de objeto quedará al final
+//
+// Lo que el Director SÍ sabe:
+//   ✓ Que el builder habla el "idioma" VehiculoBuilder
+//   ✓ Qué pasos componen un "super deportivo" vs un "familiar"
+//   ✓ El orden correcto de esos pasos
+//
+// ─────────────────────────────────────────────────────────────────
 
-/**
- * DIRECTOR: DirectorDeVehiculos
- * ─────────────────────────────────────────────────────────────
- * Conoce las "recetas" para distintos tipos de vehículos
- * y las ejecuta en el orden correcto sobre cualquier builder.
- *
- * DIFERENCIA CON DirectorDeCasas:
- * En este Director no hay setBuilder(). Aquí el builder se pasa
- * directamente como parámetro de cada método de construcción.
- *
- * Ambos enfoques son válidos en el patrón Builder:
- *   • setBuilder()        → útil cuando el director construye muchos
- *                           objetos seguidos con el mismo builder
- *   • builder por param   → útil cuando cada llamada puede usar
- *                           un builder diferente de forma más explícita
- *
- * En este caso, pasar el builder por parámetro deja muy claro
- * en el código cliente cuál builder se usa en cada llamada.
- */
+
+import { IVehiculoBuilder } from "./IVehiculoBuilder";
+
 export class DirectorDeVehiculos {
-  /**
-   * Construye la configuración de un coche super deportivo.
-   * Motor potente, pocos asientos, máxima tecnología.
-   *
-   * @param builder Puede ser CocheBuilder (produce el auto)
-   *                o ManualBuilder (produce el manual del auto).
-   *                El Director no distingue entre ellos.
-   */
-  construirCocheSuperDeportivo(builder: VehiculoBuilder): void {
+
+  // ── RECETA 1: SUPER DEPORTIVO ───────────────────────────────────
+  // El Director ejecuta estos 4 pasos sobre CUALQUIER builder que
+  // implemente IVehiculoBuilder — no sabe ni le importa qué produce.
+  construirCocheSuperDeportivo(builder: IVehiculoBuilder): void {
     builder
       .setMotor("V8 Turbo 600cv")
       .setAsientos(2)
@@ -36,18 +36,13 @@ export class DirectorDeVehiculos {
       .setComputadoraDeBordo();
   }
 
-  /**
-   * Construye la configuración de un coche familiar.
-   * Motor eficiente, más asientos, sin computadora de a bordo.
-   *
-   * @param builder Cualquier implementación de VehiculoBuilder.
-   */
-  construirCocheFamiliar(builder: VehiculoBuilder): void {
+  // ── RECETA 2: FAMILIAR ──────────────────────────────────────────
+  // El patrón Builder eliminando los "parámetros fantasma"
+  // que plagan a los constructores telescópicos tradicionales.
+  construirCocheFamiliar(builder: IVehiculoBuilder): void {
     builder
       .setMotor("1.6 TDI Eco")
       .setAsientos(5)
       .setGps();
-      // Sin computadora de a bordo — no se llama ese paso,
-      // no se necesita enviar null ni ningún valor vacío.
   }
 }

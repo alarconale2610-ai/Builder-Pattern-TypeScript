@@ -1,107 +1,84 @@
-/**
- * PUNTO DE ENTRADA: main.ts
- * ─────────────────────────────────────────────────────────────
- * Este archivo es el CLIENTE — el código que usa el patrón Builder.
- *
- * El cliente tiene tres responsabilidades:
- *   1. Crear el builder concreto que necesita
- *   2. (Opcional) Pasárselo al Director para que ejecute una receta
- *   3. Recoger el producto terminado del builder
- *
- * Notar que el cliente NUNCA construye la casa o el auto directamente.
- * Solo elige el builder, delega al director y recoge el resultado.
- */
+// ╔══════════════════════════════════════════════════════════════════╗
+// ║  ARCHIVO 7 — main.ts                                             ║
+// ║  ROL EN EL PATRÓN: CLIENTE (quien orquesta todo)                 ║
+// ╚══════════════════════════════════════════════════════════════════╝
+//
+// EL CLIENTE TIENE EXACTAMENTE 3 RESPONSABILIDADES:
+// ───────────────────────────────────────────────────
+//   1. Crear el builder concreto que necesita
+//   2. (Opcional) Pasárselo al Director para que ejecute una receta
+//   3. Recoger el producto terminado del builder
+//
+// Lo que el cliente NUNCA hace:
+//   ✗ Construir el objeto directamente (no llama a "new Coche()" con 10 parámetros)
+//   ✗ Conocer el orden interno de los pasos de construcción
+//   ✗ Pedirle el producto al Director (el Director no lo tiene)
+//
+// Esta separación de responsabilidades es el corazón del patrón Builder.
 
-import { CasaDeMaderaBuilder } from "./casas/CasaDeMaderaBuilder";
-import { CasaDeDiamanteBuilder } from "./casas/CasaDeDiamanteBuilder";
-import { DirectorDeCasas } from "./casas/DirectorDeCasas";
-import { CocheBuilder } from "./autos/CocheBuilder";
-import { ManualBuilder } from "./autos/ManualBuilder";
-import { DirectorDeVehiculos } from "./autos/DirectorDeVehiculos";
+import { CocheBuilder }         from "./autos/CocheBuilder";
+import { ManualBuilder }        from "./autos/ManualBuilder";
+import { DirectorDeVehiculos }  from "./autos/DirectorDeVehiculos";
 
-// ══════════════════════════════════════════════════════════════
-// EJEMPLO 1: BUILDER DE CASAS
-// ══════════════════════════════════════════════════════════════
 console.log("=".repeat(50));
-console.log("EJEMPLO 1: BUILDER DE CASAS");
+console.log("EJEMPLO: BUILDER DE AUTOS Y MANUAL");
 console.log("=".repeat(50));
 
-// El director es un objeto independiente y reutilizable.
-// No sabe nada de materiales — solo conoce las recetas.
-const directorCasas = new DirectorDeCasas();
+// ── PASO 1: Crear el Director y los Builders ────────────────────────
+//
+// El Director es un objeto reutilizable e independiente.
+// No fabrica nada por sí solo — solo conoce las recetas.
+const director = new DirectorDeVehiculos();
 
-// ── Cabaña de madera ──
-// 1. Elegimos el builder concreto
-const builderMadera = new CasaDeMaderaBuilder();
-// 2. Lo "enchufamos" al director con setBuilder()
-directorCasas.setBuilder(builderMadera);
-// 3. El director ejecuta la receta sobre el builder
-directorCasas.construirCabana();
-// 4. El cliente recoge el resultado directamente del builder
-const cabana = builderMadera.obtenerCasa();
-cabana.describir();
-
-console.log();
-
-// ── Mansión de diamante ──
-// Mismo director, distinto builder → resultado completamente diferente
-const builderDiamante = new CasaDeDiamanteBuilder();
-directorCasas.setBuilder(builderDiamante);  // cambiamos el builder
-directorCasas.construirMansion();           // misma receta que antes
-const mansion = builderDiamante.obtenerCasa();
-mansion.describir();
-
-console.log();
-
-// ── Casa personalizada (sin director) ──
-// El cliente también puede controlar cada paso manualmente,
-// sin pasar por el director. Útil para configuraciones únicas.
-// El encadenamiento (return this) hace el código muy legible.
-const casaPersonalizada = new CasaDeMaderaBuilder()
-  .construirParedes()
-  .construirTecho()
-  .agregarPuertas(3)
-  .agregarVentanas(8)
-  .agregarJardin()
-  .obtenerCasa();
-
-console.log("🏡 Casa personalizada (sin director):");
-casaPersonalizada.describir();
-
-
-// ══════════════════════════════════════════════════════════════
-// EJEMPLO 2: BUILDER DE AUTOS Y MANUAL
-// ══════════════════════════════════════════════════════════════
-console.log();
-console.log("=".repeat(50));
-console.log("EJEMPLO 2: BUILDER DE AUTOS Y MANUAL");
-console.log("=".repeat(50));
-
-const directorVehiculos = new DirectorDeVehiculos();
-
-// Creamos los dos builders: uno produce metal, el otro papel
-const cocheBuilder = new CocheBuilder();
+// Creamos dos builders: uno produce metal, el otro produce papel.
+// Desde afuera lucen iguales para el Director (ambos son VehiculoBuilder).
+const cocheBuilder  = new CocheBuilder();
 const manualBuilder = new ManualBuilder();
 
-// ── Mismo director, misma receta, dos builders distintos ──
-// El director ejecuta exactamente los mismos pasos en ambos casos
-directorVehiculos.construirCocheSuperDeportivo(cocheBuilder);
-directorVehiculos.construirCocheSuperDeportivo(manualBuilder);
+console.log("\n--- Super Deportivo ---");
 
-// Como Coche y ManualDeCoche no comparten interfaz,
-// el cliente recoge el resultado de cada builder específico.
-// El director NO puede devolver el producto — no sabe qué tipo es.
-const cocheDeportivo = cocheBuilder.obtenerCoche();
+// ── PASO 2: El Director ejecuta la misma receta sobre los dos builders ──
+//
+// Esta es la línea más importante de la exposición:
+// el Director llama exactamente los mismos pasos en ambos casos.
+// La diferencia está en quién los ejecuta, no en quién los ordena.
+director.construirCocheSuperDeportivo(cocheBuilder);   // produce metal
+director.construirCocheSuperDeportivo(manualBuilder);  // produce papel
+
+// ── PASO 3: El cliente recoge el resultado de cada builder ──────────
+//
+// El Director NO puede entregar el producto porque no sabe qué tipo es.
+// (IVehiculoBuilder no tiene método "obtener" — es intencional.)
+// Por eso el cliente va directamente a cada builder concreto.
+const cocheDeportivo   = cocheBuilder.obtenerCoche();    // retira del CocheBuilder
+const manualDeportivo  = manualBuilder.obtenerManual();  // retira del ManualBuilder
+
 cocheDeportivo.describir();
-
 console.log();
-
-const manualDeportivo = manualBuilder.obtenerManual();
 manualDeportivo.describir();
 
-console.log();
+// ── BONUS: Coche Familiar ────────────────────────────────────────────
+//
+// Mismos builders, receta diferente → resultado diferente.
+// Notar que el Director omite setComputadoraDeBordo() en esta receta.
+// No hay nulls, no hay flags, no hay if/else: solo pasos que se ejecutan o no.
+console.log("\n--- Coche Familiar ---");
+const familiarBuilder = new CocheBuilder();
+director.construirCocheFamiliar(familiarBuilder);
+familiarBuilder.obtenerCoche().describir();
 
-// ── Coche familiar ──
-const cocheFamiliarBuilder = new CocheBuilder();
-directorVehiculos.construirCocheFamiliar(cocheFamiliarBuilder);
-cocheFamiliarBuilder.obtenerCoche().describir();
+// ── BONUS: Sin Director (construcción manual) ────────────────────────
+//
+// El cliente también puede controlar cada paso sin pasar por el Director.
+// Útil cuando se necesita una configuración única que no corresponde
+// a ninguna "receta" estándar. El encadenamiento (return this)
+// hace el código muy legible, casi como un lenguaje natural.
+console.log("\n--- Configuración personalizada (sin Director) ---");
+const cocheCustom = new CocheBuilder()
+  .setMotor("Eléctrico 300kW")
+  .setAsientos(4)
+  .setGps()
+  // No se activa setComputadoraDeBordo → simplemente no se incluye
+  .obtenerCoche();
+
+cocheCustom.describir();
