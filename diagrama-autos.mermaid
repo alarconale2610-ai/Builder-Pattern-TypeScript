@@ -1,57 +1,30 @@
 classDiagram
-    direction TB
-
-    %% ── CLIENTE (código de uso en la parte superior) ──
-    class Cliente {
-        director = new DirectorDeVehiculos()
-        cocheBuilder = new CocheBuilder()
-        manualBuilder = new ManualBuilder()
-        director.construirCocheSuperDeportivo(cocheBuilder)
-        director.construirCocheSuperDeportivo(manualBuilder)
-        coche = cocheBuilder.obtenerCoche()
-        manual = manualBuilder.obtenerManual()
-    }
-
-    %% ── DIRECTOR ──
-    class DirectorDeVehiculos {
-        ...
-        +construirCocheSuperDeportivo(builder) void
-        +construirCocheFamiliar(builder) void
-    }
-
-   
-    %% ── INTERFAZ BUILDER ──
-    class VehiculoBuilder {
+    class IVehiculoBuilder {
         <<interface>>
-        +setMotor(tipo) this
-        +setAsientos(cantidad) this
+        +setMotor(tipo: string) this
+        +setAsientos(cantidad: number) this
         +setGps() this
         +setComputadoraDeBordo() this
     }
 
-    %% ── BUILDER CONCRETO A ──
     class CocheBuilder {
         -coche: Coche
-        +setMotor(tipo) this
-        +setAsientos(cantidad) this
+        +setMotor(tipo: string) this
+        +setAsientos(cantidad: number) this
         +setGps() this
         +setComputadoraDeBordo() this
         +obtenerCoche() Coche
     }
 
-    
-    %% ── BUILDER CONCRETO B ──
     class ManualBuilder {
         -manual: ManualDeCoche
-        +setMotor(tipo) this
-        +setAsientos(cantidad) this
+        +setMotor(tipo: string) this
+        +setAsientos(cantidad: number) this
         +setGps() this
         +setComputadoraDeBordo() this
         +obtenerManual() ManualDeCoche
     }
 
-   
-    %% ── PRODUCTOS ──
     class Coche {
         +motor: string
         +asientos: number
@@ -68,11 +41,25 @@ classDiagram
         +describir() void
     }
 
-    %% ── RELACIONES ──
-    Cliente ..> DirectorDeVehiculos : usa
-    Cliente ..> VehiculoBuilder : usa
-    DirectorDeVehiculos ..> VehiculoBuilder : usa por parámetro
-    VehiculoBuilder <|.. CocheBuilder : implements
-    VehiculoBuilder <|.. ManualBuilder : implements
-    CocheBuilder *-- Coche : crea
-    ManualBuilder *-- ManualDeCoche : crea
+    class DirectorDeVehiculos {
+        +construirCocheSuperDeportivo(builder: IVehiculoBuilder) void
+        +construirCocheFamiliar(builder: IVehiculoBuilder) void
+    }
+
+    class Cliente_Main {
+        <<Client>>
+    }
+
+    IVehiculoBuilder <|.. CocheBuilder
+    IVehiculoBuilder <|.. ManualBuilder
+
+    CocheBuilder *--> Coche
+    ManualBuilder *--> ManualDeCoche
+
+    DirectorDeVehiculos --> IVehiculoBuilder
+
+    Cliente_Main ..> DirectorDeVehiculos
+    Cliente_Main ..> CocheBuilder
+    Cliente_Main ..> ManualBuilder
+    Cliente_Main ..> Coche
+    Cliente_Main ..> ManualDeCoche
